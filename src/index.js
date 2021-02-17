@@ -1,22 +1,48 @@
-const { ApolloServer } = require('apollo-server');
+const { ApolloServer } = require('apollo-server')
+const fs = require('fs')
+const path = require('path')
 
-// 1
-const typeDefs = `
-  type Query {
-    info: String!
-  }
-`
+let links = [{
+    id: "link-0",
+    description: "This is the first link",
+    url: "https://google.com"
+}]
+let idCount = links.length
 
 // 2
 const resolvers = {
     Query: {
-        info: () => `This is the API of a Hackernews Clone`
+        link: (parent, args) => links[args]
+
+    },
+    Mutation: {
+
+        updateLink: (parent, args) => {
+            const link = {
+                id: `link-${idCount++}`,
+                description: args.description,
+                url: args.url
+            }
+            links.push(link)
+            return links
+        },
+        deleteLink: (parent, args) => {
+            const link = links.filter((x) => x.id == args)
+            list.splice(links.map(x => { return x.id }).indexOf(args))
+
+            return link
+        }
     }
+
 }
+
 
 // 3
 const server = new ApolloServer({
-    typeDefs,
+    typeDefs: fs.readFileSync(
+        path.join(__dirname, 'exercise.graphql'),
+        'utf8'
+    ),
     resolvers,
 })
 
